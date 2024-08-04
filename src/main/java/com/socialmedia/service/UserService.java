@@ -1,6 +1,7 @@
 package com.socialmedia.service;
 
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,18 @@ public class UserService {
 	public User saveUser(User user) {
 		return userRepository.save(user);
 	}
+
+	/**
+	 * @param username
+	 * @return
+	 */
+	public Optional<User> findByUserName(String username) {
+		return userRepository.findByUsername(username);
+	}
 	
+	public List<User> findByUsersName(String username) {
+		return userRepository.findUsersByUsername(username);
+	}
 
 	
 
