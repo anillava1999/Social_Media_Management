@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,25 +40,30 @@ public class UserController {
 		return new ResponseEntity<>(registedUser, HttpStatus.CREATED);
 	}
 
+	/*
+	 * @GetMapping("/{username}") public ResponseEntity<User>
+	 * findByUserName(@PathVariable String username) { Optional<User> user =
+	 * userService.findByUserName(username); if (user.isPresent()) { return new
+	 * ResponseEntity<>(user.get(), HttpStatus.OK);
+	 * 
+	 * } else { return new ResponseEntity<>(HttpStatus.NOT_FOUND); } }
+	 */
+	
 	@GetMapping("/{username}")
-	public ResponseEntity<User> findByUserName(@PathVariable String username) {
-		Optional<User> user = userService.findByUserName(username);
-		if (user.isPresent()) {
-			return new ResponseEntity<>(user.get(), HttpStatus.OK);
-
-		} else {
+	public ResponseEntity<List<User>> findUsersByUserName(@PathVariable String username) {
+		List<User> users = userService.findUsersByUsersName(username);
+		if (users.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} else {
+			System.out.println(users);
+			return new ResponseEntity<>(users, HttpStatus.OK);
+
 		}
 	}
 	
-	@GetMapping("/users/{username}")
-	public ResponseEntity<List<User>> findUsersByUserName(@PathVariable String username) {
-		List<User> users = userService.findByUsersName(username);
-		if (users.isEmpty()) {
-			return new ResponseEntity<>(users, HttpStatus.OK);
-
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	@PutMapping("/{username}")
+	public ResponseEntity<User> updateCustomer(@PathVariable String username, @RequestBody User user) {
+		Optional<User> updatedUser = userService.updateUser(username, user);
+		return new ResponseEntity<>(updatedUser.get(), HttpStatus.OK);
 	}
 }

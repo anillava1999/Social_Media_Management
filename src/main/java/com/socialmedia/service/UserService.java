@@ -27,12 +27,22 @@ public class UserService {
 	 * @param username
 	 * @return
 	 */
-	public Optional<User> findByUserName(String username) {
-		return userRepository.findByUsername(username);
-	}
+	/*
+	 * public Optional<User> findByUserName(String username) { return
+	 * userRepository.findByUsername(username); }
+	 */
 	
-	public List<User> findByUsersName(String username) {
+	public List<User> findUsersByUsersName(String username) {
 		return userRepository.findUsersByUsername(username);
+	}
+
+	/**
+	 * @param username
+	 * @param user
+	 * @return
+	 */
+	public Optional<User> updateUser(String username, User user) {
+		return userRepository.updateUser(username,user);
 	}
 
 	
