@@ -1,50 +1,76 @@
 package com.socialmedia.service;
 
-
-import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.socialmedia.dto.UserDTO;
 import com.socialmedia.model.User;
 import com.socialmedia.repository.UserRepository;
+import com.socialmedia.util.UserConverter;
 
-/**
- * 
- */
 @Service
 public class UserService {
 
 	@Autowired
 	private UserRepository userRepository;
 
-	public User saveUser(User user) {
-		return userRepository.save(user);
-	}
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
-	/**
-	 * @param username
-	 * @return
-	 */
+	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
+	
 	/*
-	 * public Optional<User> findByUserName(String username) { return
-	 * userRepository.findByUsername(username); }
+	 * "saveUser" Methods helps to save the User values
 	 */
-	
-	public List<User> findUsersByUsersName(String username) {
-		return userRepository.findUsersByUsername(username);
+	public UserDTO saveUser(UserDTO userDTO) {
+		logger.info("Saving user: {}", userDTO.getUsername());
+
+		// Convert User Entity to UserDTO
+		User user = UserConverter.toEntity(userDTO);
+
+		// Apply PasswordEncoder to the password entity
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+		// Save the User
+		User savedUser = userRepository.save(user);
+		return UserConverter.toDTO(savedUser);
 	}
 
-	/**
-	 * @param username
-	 * @param user
-	 * @return
-	 */
-	public Optional<User> updateUser(String username, User user) {
-		return userRepository.updateUser(username,user);
-	}
-
 	
+	/*
+	 * "findByUserName" Methods helps to find the user by username
+	 */
+	public Optional<UserDTO> findByUserName(String username) {
+		
+		return userRepository.findByUsername(username).map(UserConverter::toDTO);
+	}
+	
+	
+	/*
+	 * "updateUser" method helps to update current user
+	 */
+	public Optional<UserDTO> updateUser(String username, UserDTO userDTO) {
+		Optional<User> existingUser = userRepository.findByUsername(username);
 
+		if (existingUser.isPresent()) {
+			User user = existingUser.get();
+			user.setFullname(userDTO.getFullname());
+			user.setLastname(userDTO.getLastname());
+			user.setEmail(userDTO.getEmail());
+			user.setMobile(userDTO.getMobile());
+			user.setDOF(userDTO.getDOF());
+			user.setAddress(userDTO.getAddress());
+
+			User updatedUser = userRepository.save(user);
+			return Optional.of(UserConverter.toDTO(updatedUser));
+		}
+
+		return Optional.empty();
+	}
 }
